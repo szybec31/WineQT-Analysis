@@ -1,6 +1,6 @@
 from src.data_loader import load_data
 from src.preprocessing import prepare_data
-from src.config import MODELS, SCORING
+from src.config import MODELS, SCORING, RESAMPLERS
 from src.pipelines import create_pipeline
 from src.evaluation import evaluate_model
 from sklearn.model_selection import (
@@ -22,19 +22,30 @@ pd.set_option("display.max_colwidth", None)
 pd.set_option("display.width", None)
 pd.set_option("display.expand_frame_repr", False)
 
+# =============================================
+# 1. Przeprowadzając testy należy wybrać ilość klas jaki chcemy uwzględnić w naszym problemie
+# 2. Natępnie wybieramy kroki jakie chcemy uwzględnić w eksperymencie.
+#    a. Dostosowujemy pipeline ---> pipe = create_pipeline(model,resampler=None,use_scaler=True)
+#    b. lub włączamy/wyłączamy poszczególne elementy w pliku config.py
+#
+# =============================================
+
+
 # load
 df = load_data("Dataset/WineQT.csv")
+mode = "4multiclass" # binary lub 4multiclass
 
 # preprocess
-X, y = prepare_data(df)
+X, y = prepare_data(df,mode = mode)
 
-y = (y == 6).astype(int)
+#y = (y == 6).astype(int)
 
 # CV
 skf = StratifiedKFold(n_splits=10, shuffle=True, random_state=42)
 
 results = []
 
+'''
 sss = StratifiedShuffleSplit(
     n_splits=1,
     test_size=0.2,
@@ -67,22 +78,42 @@ axes[1].set_ylabel("Count")
 
 plt.tight_layout()
 plt.show()
+'''
 
-for name, model in MODELS.items():
+for res_name, resampler in RESAMPLERS.items():
+    for name, model in MODELS.items():
 
-    print(f"\n===== {name} =====")
+        print(f"\n===== {name} | {res_name} =====")
 
-    pipe = create_pipeline(model,True,False)
+        pipe = create_pipeline(model,resampler=None,use_scaler=True)
 
-    scores = evaluate_model(pipe, X, y, skf, SCORING)
+        scores = evaluate_model(pipe, X, y, skf, SCORING)
 
-    print(scores)
+        print(scores)
 
-    results.append({
-        "model": name,
-        **scores
-    })
+        results.append({
+            "model": name,
+            "resampling": res_name,
+            **scores
+        })
 
+results_df = pd.DataFrame(results)
+
+# jeśli masz stringi
+results_df["f1"] = results_df["f1"].str.split().str[0].astype(float)
+
+sns.barplot(
+    data=results_df,
+    x="resampling",
+    y="f1",
+    hue="model"
+)
+
+plt.title("Resampling comparison (F1)")
+plt.tight_layout()
+plt.show()
+
+'''
     pipe.fit(X_train, y_train)
 
     if hasattr(pipe, "predict_proba"):
@@ -110,4 +141,4 @@ plt.show()
 results_df = pd.DataFrame(results)
 print("\n=== SUMMARY ===")
 print(results_df)
-
+'''
