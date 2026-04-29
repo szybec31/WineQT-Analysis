@@ -1,0 +1,35 @@
+Regresja liniowa:
+
+   split       MAE      RMSE        R2
+0  train  0.486164  0.627488  0.401558
+1   test  0.520555  0.683778  0.235695
+
+Walidacja krzyżowa - Regresja liniowa
+Średnie MAE: 0.501
+Średnie R2 : 0.356
+R2 po usunięciu cech: 0.283
+
+Test:
+Accuracy : 0.738
+Precision: 0.762
+Recall   : 0.750
+F1-score : 0.756
+ROC AUC  : 0.813
+
+
+Walidacja krzyżowa - Regresja logistyczna
+
+Średnie Accuracy: 0.750
+Średnie F1      : 0.768
+Średnie ROC AUC : 0.822
+
+
+Porównanie z DecisionTreeClassifier
+
+Logistic Regression:
+Accuracy: 0.750
+F1:       0.768
+
+Decision Tree:
+Accuracy: 0.730
+F1:       0.756
