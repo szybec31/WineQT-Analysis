@@ -2,7 +2,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 
-from imblearn.over_sampling import SMOTE, RandomOverSampler, ADASYN
+from imblearn.over_sampling import SMOTE, RandomOverSampler
 from imblearn.combine import SMOTEENN
 
 from sklearn.metrics import make_scorer, precision_score

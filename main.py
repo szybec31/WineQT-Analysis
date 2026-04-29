@@ -14,7 +14,7 @@ from sklearn.metrics import (
 )
 import pandas as pd
 import matplotlib.pyplot as plt
-from imblearn.over_sampling import SMOTE
+#from imblearn.over_sampling import SMOTE
 import seaborn as sns
 
 pd.set_option('display.max_columns', None)
@@ -27,13 +27,11 @@ pd.set_option("display.expand_frame_repr", False)
 # 2. Natępnie wybieramy kroki jakie chcemy uwzględnić w eksperymencie.
 #    a. Dostosowujemy pipeline ---> pipe = create_pipeline(model,resampler=None,use_scaler=True)
 #    b. lub włączamy/wyłączamy poszczególne elementy w pliku config.py
-#
 # =============================================
-
 
 # load
 df = load_data("Dataset/WineQT.csv")
-mode = "4multiclass" # binary lub 4multiclass
+mode = "basic" # binary lub 4multiclass
 
 # preprocess
 X, y = prepare_data(df,mode = mode)
@@ -85,7 +83,7 @@ for res_name, resampler in RESAMPLERS.items():
 
         print(f"\n===== {name} | {res_name} =====")
 
-        pipe = create_pipeline(model,resampler=None,use_scaler=True)
+        pipe = create_pipeline(model,resampler=resampler,use_scaler=True)
 
         scores = evaluate_model(pipe, X, y, skf, SCORING)
 
@@ -110,6 +108,7 @@ sns.barplot(
 )
 
 plt.title("Resampling comparison (F1)")
+plt.savefig(f"resampling_{mode}.png")
 plt.tight_layout()
 plt.show()
 
