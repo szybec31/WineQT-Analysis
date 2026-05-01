@@ -1,6 +1,7 @@
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+from catboost import CatBoostClassifier
 
 from imblearn.over_sampling import SMOTE, RandomOverSampler
 from imblearn.combine import SMOTEENN
@@ -11,6 +12,8 @@ MODELS = {
     "LogisticRegression": LogisticRegression(max_iter=1000, random_state=42),
     "DecisionTreeClassifier": DecisionTreeClassifier(random_state=42),
     "RandomForestClassifier": RandomForestClassifier(random_state=42),
+    "GradientBoostingClassifier": GradientBoostingClassifier(random_state=42),
+    "CatBoost": CatBoostClassifier(verbose=False, allow_writing_files=False, random_state=42),
 }
 
 SCORING = {
@@ -24,5 +27,5 @@ RESAMPLERS = {
     "none": None,
     "smote": SMOTE(k_neighbors=1,random_state=42),
     "ros": RandomOverSampler(random_state=42),
-    "smoteenn": SMOTEENN(random_state=42)
+    #"smoteenn": SMOTEENN(random_state=42)
 }

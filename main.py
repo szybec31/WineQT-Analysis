@@ -2,16 +2,8 @@ from src.data_loader import load_data
 from src.preprocessing import prepare_data
 from src.config import MODELS, SCORING, RESAMPLERS
 from src.pipelines import create_pipeline
-from src.evaluation import evaluate_model
-from sklearn.model_selection import (
-    StratifiedKFold,
-    StratifiedShuffleSplit
-)
-
-from sklearn.metrics import (
-    roc_curve,
-    roc_auc_score
-)
+from src.evaluation import evaluate_model, mean_confusion_matrix, plot_roc_curves
+from sklearn.model_selection import StratifiedKFold
 import pandas as pd
 import matplotlib.pyplot as plt
 #from imblearn.over_sampling import SMOTE
@@ -31,52 +23,17 @@ pd.set_option("display.expand_frame_repr", False)
 
 # load
 df = load_data("Dataset/WineQT.csv")
-mode = "basic" # binary lub 4multiclass
+
+# Mod "basic" dla wszystkich 6 klas, "4multiclass" dla 4 klas i "binary" dla dwóch klas
+mode = "binary"
 
 # preprocess
 X, y = prepare_data(df,mode = mode)
-
-#y = (y == 6).astype(int)
 
 # CV
 skf = StratifiedKFold(n_splits=10, shuffle=True, random_state=42)
 
 results = []
-
-'''
-sss = StratifiedShuffleSplit(
-    n_splits=1,
-    test_size=0.2,
-    random_state=42
-)
-
-for train_idx, test_idx in sss.split(X, y):
-    X_train = X.iloc[train_idx]
-    X_test = X.iloc[test_idx]
-    y_train = y.iloc[train_idx]
-    y_test = y.iloc[test_idx]
-
-smote = SMOTE(k_neighbors=2, random_state=42)
-
-X_train_smote, y_train_smote = smote.fit_resample(X_train, y_train)
-
-fig, axes = plt.subplots(1, 2, figsize=(12, 5))
-
-# przed SMOTE
-sns.countplot(x=y_train, ax=axes[0])
-axes[0].set_title("Train set BEFORE SMOTE")
-axes[0].set_xlabel("Class")
-axes[0].set_ylabel("Count")
-
-# po SMOTE
-sns.countplot(x=y_train_smote, ax=axes[1])
-axes[1].set_title("Train set AFTER SMOTE")
-axes[1].set_xlabel("Class")
-axes[1].set_ylabel("Count")
-
-plt.tight_layout()
-plt.show()
-'''
 
 for res_name, resampler in RESAMPLERS.items():
     for name, model in MODELS.items():
@@ -112,32 +69,69 @@ plt.savefig(f"resampling_{mode}.png")
 plt.tight_layout()
 plt.show()
 
-'''
-    pipe.fit(X_train, y_train)
+# Macierz pomyłek dla każdego modelu
 
-    if hasattr(pipe, "predict_proba"):
-        y_prob = pipe.predict_proba(X_test)[:, 1]
+resampling = "none" # Wykres tylko dla danego trybu resamplingu
 
-        fpr, tpr, _ = roc_curve(y_test, y_prob)
-        auc_score = roc_auc_score(y_test, y_prob)
+models = []
 
-        plt.plot(
-            fpr,
-            tpr,
-            label=f"{name} (AUC = {auc_score:.3f})"
-        )
+for res_name, resampler in RESAMPLERS.items():
+    if res_name != resampling:
+        continue
 
-plt.plot([0, 1], [0, 1], linestyle="--")
+    for name, model in MODELS.items():
+        pipe = create_pipeline(model, resampler=resampler, use_scaler=True)
 
-plt.xlabel("False Positive Rate")
-plt.ylabel("True Positive Rate")
-plt.title("ROC Curve Comparison")
-plt.legend()
-plt.grid(True)
+        mean_cm, labels = mean_confusion_matrix(pipe, X, y, skf)
+
+        models.append((name, mean_cm, labels))
+
+n_models = len(models)
+
+# Nie wiem ile będzie modelów w przszłości także to ma znaleźć najbardziej optymalną konfigurację subplotu
+cols = 2
+rows = (n_models + 1) // cols
+
+fig, axes = plt.subplots(rows, cols, figsize=(12, 5 * rows))
+axes = axes.flatten()
+
+for i, (name, cm, labels) in enumerate(models):
+    sns.heatmap(
+        cm,
+        annot=True,
+        fmt=".2f",
+        cmap="Blues",
+        xticklabels=labels,
+        yticklabels=labels,
+        ax=axes[i]
+    )
+    axes[i].set_title(name)
+    axes[i].set_xlabel("Predicted")
+    axes[i].set_ylabel("True")
+
+# Na obecny moment jest 5 modeli dlatego przy subplocie 3 x 2 pozostaje jeden pusty także go usuwam
+for j in range(i + 1, len(axes)):
+    fig.delaxes(axes[j])
+
+plt.suptitle(f"Mean Confusion Matrices ({resampling})", fontsize=16)
 plt.tight_layout()
+plt.savefig(f"confusion_matrices_{mode}_{resampling}.png")
 plt.show()
 
-results_df = pd.DataFrame(results)
-print("\n=== SUMMARY ===")
-print(results_df)
-'''
+
+# Krzywa ROC dla problemu binarnego
+
+if mode == "binary":
+
+    resampling = "none"
+    models = []
+
+    for res_name, resampler in RESAMPLERS.items():
+        if res_name != resampling:
+            continue
+
+        for name, model in MODELS.items():
+            pipe = create_pipeline(model, resampler=resampler, use_scaler=True)
+            models.append((name, pipe))
+
+    plot_roc_curves(models, X, y, skf)
