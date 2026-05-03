@@ -43,7 +43,7 @@ def plot_roc_curves(models, X, y, cv):
 
     for name, model in models:
         y_true = []
-        y_prob = []
+        y_prob_all = []
 
         for train_idx, test_idx in cv.split(X, y):
             X_train, X_test = X.iloc[train_idx], X.iloc[test_idx]
@@ -52,10 +52,10 @@ def plot_roc_curves(models, X, y, cv):
             model.fit(X_train, y_train)
             y_prob = model.predict_proba(X_test)[:, 1]
             y_true.extend(y_test)
-            y_prob.extend(y_prob)
+            y_prob_all.extend(y_prob)
 
-        fpr, tpr, _ = roc_curve(y_true, y_prob, pos_label=6)
-        auc_score = roc_auc_score(y_true, y_prob)
+        fpr, tpr, _ = roc_curve(y_true, y_prob_all, pos_label=6)
+        auc_score = roc_auc_score(y_true, y_prob_all)
 
         plt.plot(fpr, tpr, label=f"{name} (AUC = {auc_score:.3f})")
 

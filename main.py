@@ -1,6 +1,7 @@
 from src.data_loader import load_data
 from src.preprocessing import prepare_data
 from src.config import MODELS, SCORING, RESAMPLERS
+from src.automl import optimize_model
 from src.pipelines import create_pipeline
 from src.evaluation import evaluate_model, mean_confusion_matrix, plot_roc_curves
 from sklearn.model_selection import StratifiedKFold
@@ -65,7 +66,6 @@ sns.barplot(
 )
 
 plt.title("Resampling comparison (F1)")
-plt.savefig(f"resampling_{mode}.png")
 plt.tight_layout()
 plt.show()
 
@@ -115,7 +115,6 @@ for j in range(i + 1, len(axes)):
 
 plt.suptitle(f"Mean Confusion Matrices ({resampling})", fontsize=16)
 plt.tight_layout()
-plt.savefig(f"confusion_matrices_{mode}_{resampling}.png")
 plt.show()
 
 
@@ -135,3 +134,16 @@ if mode == "binary":
             models.append((name, pipe))
 
     plot_roc_curves(models, X, y, skf)
+
+
+for name, model in MODELS.items():
+
+    if name not in ["GradientBoostingClassifier", "CatBoost"]:
+        continue
+
+    print(f"\n===== AutoML: {name} =====")
+
+    best_params, best_score = optimize_model(name, model, X, y, skf)
+
+    print("Best params:", best_params)
+    print("Best score:", best_score)

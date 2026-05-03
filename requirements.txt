@@ -7,3 +7,4 @@ scikit-learn
 seaborn
 imblearn
 catboost
+optuna
