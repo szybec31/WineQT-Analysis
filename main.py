@@ -30,7 +30,7 @@ df = load_data("Dataset/WineQT.csv")
 mode = "binary"
 
 # preprocess
-X, y = prepare_data(df,mode = mode)
+X, y = prepare_data(df, mode = mode)
 
 # CV
 skf = StratifiedKFold(n_splits=10, shuffle=True, random_state=42)
