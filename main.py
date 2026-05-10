@@ -1,7 +1,7 @@
 from src.data_loader import load_data
 from src.preprocessing import prepare_data
 from src.config import MODELS, SCORING, RESAMPLERS
-from src.automl import optimize_model
+from automl import grid_search_models
 from src.pipelines import create_pipeline
 from src.evaluation import evaluate_model, mean_confusion_matrix, plot_roc_curves
 from sklearn.model_selection import StratifiedKFold
@@ -9,6 +9,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 #from imblearn.over_sampling import SMOTE
 import seaborn as sns
+from src.config import PARAM_GRIDS
 
 pd.set_option('display.max_columns', None)
 pd.set_option("display.max_colwidth", None)
@@ -136,14 +137,3 @@ if mode == "binary":
     plot_roc_curves(models, X, y, skf)
 
 
-for name, model in MODELS.items():
-
-    if name not in ["GradientBoostingClassifier", "CatBoost"]:
-        continue
-
-    print(f"\n===== AutoML: {name} =====")
-
-    best_params, best_score = optimize_model(name, model, X, y, skf)
-
-    print("Best params:", best_params)
-    print("Best score:", best_score)
