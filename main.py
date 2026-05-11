@@ -1,7 +1,6 @@
 from src.data_loader import load_data
 from src.preprocessing import prepare_data
 from src.config import MODELS, SCORING, RESAMPLERS
-from automl import grid_search_models
 from src.pipelines import create_pipeline
 from src.evaluation import evaluate_model, mean_confusion_matrix, plot_roc_curves
 from sklearn.model_selection import StratifiedKFold
