@@ -14,7 +14,7 @@ def evaluate_model(model, X, y, cv, scoring):
     )
 
     return {
-        "f1": f"{scores['test_f1'].mean():.3f} ({scores['test_f1'].std():.3f})",
+        "f1_macro": f"{scores['test_f1_macro'].mean():.3f} ({scores['test_f1_macro'].std():.3f})",
         "bal_acc": f"{scores['test_bal_acc'].mean():.3f} ({scores['test_bal_acc'].std():.3f})",
         "precision": f"{scores['test_precision'].mean():.3f} ({scores['test_precision'].std():.3f})",
         "recall": f"{scores['test_recall'].mean():.3f} ({scores['test_recall'].std():.3f})",

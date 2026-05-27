@@ -1,0 +1,6 @@
+model,resampling,f1_macro,bal_acc,precision,recall
+RandomForestClassifier,none,0.790 (0.040),0.791 (0.041),0.793 (0.039),0.791 (0.041)
+CatBoost,none,0.782 (0.044),0.782 (0.044),0.783 (0.044),0.782 (0.044)
+GradientBoostingClassifier,none,0.774 (0.045),0.774 (0.044),0.776 (0.045),0.774 (0.044)
+LogisticRegression,none,0.745 (0.041),0.746 (0.041),0.746 (0.040),0.746 (0.041)
+DecisionTreeClassifier,none,0.718 (0.052),0.719 (0.052),0.720 (0.052),0.719 (0.052)

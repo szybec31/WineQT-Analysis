@@ -17,7 +17,7 @@ MODELS = {
 }
 
 SCORING = {
-    "f1": "f1_macro",
+    "f1_macro": "f1_macro",
     "bal_acc": "balanced_accuracy",
     "precision": make_scorer(precision_score, average="macro", zero_division=0),
     "recall": "recall_macro"

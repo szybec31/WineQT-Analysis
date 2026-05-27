@@ -1,14 +1,14 @@
-from src.data_loader import load_data
-from src.preprocessing import prepare_data
-from src.config import MODELS, SCORING, RESAMPLERS
-from src.pipelines import create_pipeline
-from src.evaluation import evaluate_model, mean_confusion_matrix, plot_roc_curves
-from sklearn.model_selection import StratifiedKFold
 import pandas as pd
 import matplotlib.pyplot as plt
-#from imblearn.over_sampling import SMOTE
 import seaborn as sns
-from src.config import PARAM_GRIDS
+
+from src.data_loader import load_data
+from src.preprocessing import prepare_data
+from src.config import MODELS, SCORING, RESAMPLERS, PARAM_GRIDS
+from src.pipelines import create_pipeline
+from src.evaluation import evaluate_model, mean_confusion_matrix, plot_roc_curves
+from src.results import create_results_tables, plot_results
+from sklearn.model_selection import StratifiedKFold
 
 pd.set_option('display.max_columns', None)
 pd.set_option("display.max_colwidth", None)
@@ -50,24 +50,21 @@ for res_name, resampler in RESAMPLERS.items():
         results.append({
             "model": name,
             "resampling": res_name,
-            **scores
+
+            "f1_macro": scores["f1_macro"],
+            "bal_acc": scores["bal_acc"],
+            "precision": scores["precision"],
+            "recall": scores["recall"],
+
+            # do wykresów
+            "f1_mean": float(scores["f1_macro"].split()[0]),
+            "bal_acc_mean": float(scores["bal_acc"].split()[0]),
         })
-
-results_df = pd.DataFrame(results)
-
+results_df = create_results_tables(results)
 # jeśli masz stringi
-results_df["f1"] = results_df["f1"].str.split().str[0].astype(float)
+#results_df["f1"] = results_df["f1"].str.split().str[0].astype(float)
 
-sns.barplot(
-    data=results_df,
-    x="resampling",
-    y="f1",
-    hue="model"
-)
-
-plt.title("Resampling comparison (F1)")
-plt.tight_layout()
-plt.show()
+plot_results(results_df)
 
 # Macierz pomyłek dla każdego modelu
 

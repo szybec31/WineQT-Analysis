@@ -1,0 +1,6 @@
+model,resampling,f1_macro,bal_acc,precision,recall
+CatBoost,smote,0.790 (0.050),0.792 (0.050),0.792 (0.050),0.792 (0.050)
+RandomForestClassifier,smote,0.789 (0.037),0.791 (0.038),0.791 (0.037),0.791 (0.038)
+GradientBoostingClassifier,smote,0.765 (0.054),0.766 (0.054),0.766 (0.053),0.766 (0.054)
+LogisticRegression,smote,0.752 (0.044),0.755 (0.044),0.755 (0.044),0.755 (0.044)
+DecisionTreeClassifier,smote,0.713 (0.069),0.715 (0.069),0.715 (0.068),0.715 (0.069)
