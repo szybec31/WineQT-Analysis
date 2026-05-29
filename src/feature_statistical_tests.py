@@ -142,7 +142,7 @@ def compare_feature_between_classes(
     )
 
     plt.title(f"{feature} vs quality")
-
+    plt.grid()
     plt.tight_layout()
 
     plt.show()

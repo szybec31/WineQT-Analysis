@@ -60,5 +60,7 @@ def plot_results(results_df, metric="f1_mean"):
 
     plt.title(f"Models comparison (f1_macro)")
     plt.grid(True)
+    plt.legend(loc="upper left", bbox_to_anchor=(1, 1))
     plt.tight_layout()
+    plt.savefig(f"charts/is_resampling_better.png")
     plt.show()
