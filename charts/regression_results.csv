@@ -1,0 +1,5 @@
+,model,MAE,RMSE,R2
+0,LinearRegression,0.501 (0.028),0.645 (0.044),0.354 (0.033)
+1,DecisionTreeRegressor,0.493 (0.069),0.813 (0.090),-0.032 (0.162)
+2,HistGradientBoostingRegressor,0.446 (0.023),0.612 (0.041),0.416 (0.048)
+3,RandomForestRegressor,0.433 (0.027),0.588 (0.053),0.463 (0.047)

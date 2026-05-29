@@ -8,3 +8,4 @@ seaborn
 imblearn
 catboost
 optuna
+aif360

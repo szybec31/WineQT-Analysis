@@ -1,4 +1,4 @@
-# 
+# Statistical data analysis - laboratories
 
 Ready dataset has been taken from Kaggle.com ([WineQT_dataset](https://www.kaggle.com/datasets/yasserh/wine-quality-dataset)).
 
@@ -34,8 +34,14 @@ Output variable (based on sensory data):\
    ```
    pip install -r requirements.txt
    ```
-4. Run notebook:
+4. Run notebook (optional):
    ```
    python -m jupyterlab
    ```
+## Important files and directories description:
+
+
 ## Authors:
+- Szymon Bęczkowski
+- Piotr Kontny
+- Kamil Marczyński

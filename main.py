@@ -1,14 +1,14 @@
-from src.data_loader import load_data
-from src.preprocessing import prepare_data
-from src.config import MODELS, SCORING, RESAMPLERS
-from src.pipelines import create_pipeline
-from src.evaluation import evaluate_model, mean_confusion_matrix, plot_roc_curves
-from sklearn.model_selection import StratifiedKFold
 import pandas as pd
 import matplotlib.pyplot as plt
-#from imblearn.over_sampling import SMOTE
 import seaborn as sns
-from src.config import PARAM_GRIDS
+
+from src.data_loader import load_data
+from src.preprocessing import prepare_data
+from src.config import MODELS, SCORING, RESAMPLERS, PARAM_GRIDS
+from src.pipelines import create_pipeline
+from src.evaluation import evaluate_model, mean_confusion_matrix, plot_roc_curves, plot_rf_resampling_confusion_matrices
+from src.results import create_results_tables, plot_results
+from sklearn.model_selection import StratifiedKFold
 
 pd.set_option('display.max_columns', None)
 pd.set_option("display.max_colwidth", None)
@@ -26,48 +26,102 @@ pd.set_option("display.expand_frame_repr", False)
 df = load_data("Dataset/WineQT.csv")
 
 # Mod "basic" dla wszystkich 6 klas, "4multiclass" dla 4 klas i "binary" dla dwóch klas
-mode = "binary"
+mode = "basic"
 
 # preprocess
 X, y = prepare_data(df, mode = mode)
 
-# CV
-skf = StratifiedKFold(n_splits=10, shuffle=True, random_state=42)
+# CV - (dla wszystkich klas użyć 5 splitów, w pozostałych może być 10)
+skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 
 results = []
+flag = 0
+
 
 for res_name, resampler in RESAMPLERS.items():
     for name, model in MODELS.items():
 
         print(f"\n===== {name} | {res_name} =====")
-
-        pipe = create_pipeline(model,resampler=resampler,use_scaler=True)
+        tree_models = [
+            "DecisionTreeClassifier",
+            "RandomForestClassifier",
+            "GradientBoostingClassifier",
+            "CatBoost"
+        ]
+        use_scaler = name not in tree_models
+        pipe = create_pipeline(model,resampler=resampler,use_scaler=use_scaler)
 
         scores = evaluate_model(pipe, X, y, skf, SCORING)
 
+        if name == "RandomForestClassifier" and flag == 0:
+            # trening pipeline
+            pipe.fit(X, y)
+
+            # pobranie wytrenowanego modelu z pipeline
+            rf_model = pipe.named_steps["model"]
+
+            # feature importance
+            importance = rf_model.feature_importances_
+
+            # tabela
+            feature_importance = pd.DataFrame({
+                "cecha": X.columns,
+                "ważność": importance
+            })
+
+            feature_importance = feature_importance.sort_values(
+                by="ważność",
+                ascending=False
+            )
+
+            print(feature_importance)
+
+            # wykres
+            plt.figure(figsize=(10, 6))
+
+            plt.bar(
+                feature_importance["cecha"],
+                feature_importance["ważność"]
+            )
+
+            plt.xticks(rotation=45)
+            plt.ylabel("Ważność")
+            plt.title("Feature Importance - Random Forest")
+            plt.grid()
+            plt.tight_layout()
+            plt.savefig(f"charts/feature_importance_rf.png")
+            plt.show()
+            flag = 1
         print(scores)
 
         results.append({
             "model": name,
             "resampling": res_name,
-            **scores
+
+            "f1_macro": scores["f1_macro"],
+            "bal_acc": scores["bal_acc"],
+            "precision": scores["precision"],
+            "recall": scores["recall"],
+
+            # do wykresów
+            "f1_mean": float(scores["f1_macro"].split()[0]),
+            "bal_acc_mean": float(scores["bal_acc"].split()[0]),
         })
-
-results_df = pd.DataFrame(results)
-
+results_df = create_results_tables(results)
 # jeśli masz stringi
-results_df["f1"] = results_df["f1"].str.split().str[0].astype(float)
+#results_df["f1"] = results_df["f1"].str.split().str[0].astype(float)
 
-sns.barplot(
-    data=results_df,
-    x="resampling",
-    y="f1",
-    hue="model"
+plot_results(results_df)
+
+plot_rf_resampling_confusion_matrices(
+    X=X,
+    y=y,
+    cv=skf,
+    models_dict=MODELS,
+    resamplers_dict=RESAMPLERS,
+    create_pipeline=create_pipeline
 )
-
-plt.title("Resampling comparison (F1)")
-plt.tight_layout()
-plt.show()
+'''
 
 # Macierz pomyłek dla każdego modelu
 
@@ -116,6 +170,7 @@ for j in range(i + 1, len(axes)):
 plt.suptitle(f"Mean Confusion Matrices ({resampling})", fontsize=16)
 plt.tight_layout()
 plt.show()
+'''
 
 
 # Krzywa ROC dla problemu binarnego

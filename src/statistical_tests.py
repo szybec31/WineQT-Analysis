@@ -39,6 +39,8 @@ def compare_models(model1, model2, X, y, cv,
     print(f"\n{name2} scores:")
     print(scores2)
 
+
+# SHAPIRO-WILK
     print("\n===== SHAPIRO-WILK =====")
 
     sh1 = stats.shapiro(scores1)
@@ -47,12 +49,13 @@ def compare_models(model1, model2, X, y, cv,
     print(f"{name1}: stat={sh1.statistic:.4f}, p={sh1.pvalue:.4f}")
     print(f"{name2}: stat={sh2.statistic:.4f}, p={sh2.pvalue:.4f}")
 
-    print("\n===== PAIRED T-TEST =====")
+    if sh1.pvalue and sh2.pvalue < 0.05:
+        print("Należy odrzucić hipotezę zerową")
+    else:
+        print("Nie ma podstaw do odrzucenia hipotezy zerowej")
 
-    ttest = stats.ttest_rel(scores1, scores2)
 
-    print(f"stat={ttest.statistic:.4f}, p={ttest.pvalue:.6f}")
-
+# MANN-WHITNEY U
     print("\n===== MANN-WHITNEY U =====")
 
     mw = stats.mannwhitneyu(
@@ -63,11 +66,37 @@ def compare_models(model1, model2, X, y, cv,
 
     print(f"stat={mw.statistic:.4f}, p={mw.pvalue:.6f}")
 
+    if mw.pvalue < 0.05:
+        print("Należy odrzucić hipotezę zerową")
+    else:
+        print("Nie ma podstaw do odrzucenia hipotezy zerowej")
+
+
+# PAIRED T-TEST
+    print("\n===== PAIRED T-TEST =====")
+
+    ttest = stats.ttest_rel(scores1, scores2)
+
+    print(f"stat={ttest.statistic:.4f}, p={ttest.pvalue:.6f}")
+
+    if ttest.pvalue < 0.05:
+        print("Należy odrzucić hipotezę zerową")
+    else:
+        print("Nie ma podstaw do odrzucenia hipotezy zerowej")
+
+
+
+# WILCOXON
     print("\n===== WILCOXON =====")
 
     wil = stats.wilcoxon(scores1, scores2)
 
     print(f"stat={wil.statistic:.4f}, p={wil.pvalue:.6f}")
+
+    if wil.pvalue < 0.05:
+        print("Należy odrzucić hipotezę zerową")
+    else:
+        print("Nie ma podstaw do odrzucenia hipotezy zerowej")
 
     return pd.DataFrame({
         name1: scores1,
