@@ -13,7 +13,7 @@ MODELS = {
     "DecisionTreeClassifier": DecisionTreeClassifier(random_state=42),
     "RandomForestClassifier": RandomForestClassifier(random_state=42),
     "GradientBoostingClassifier": GradientBoostingClassifier(random_state=42),
-    "CatBoost": CatBoostClassifier(verbose=False, allow_writing_files=False, random_state=42),
+    "CatBoost": CatBoostClassifier(random_state=42,allow_writing_files=False,verbose=False)
 }
 
 SCORING = {
@@ -32,12 +32,13 @@ RESAMPLERS = {
 
 PARAM_GRIDS = {
 
-    "GradientBoostingClassifier": {
-        # Demo z 5 x 4 x 3 = 60 kombinacji
-        "model__n_estimators": range(100, 301, 50),
-        "model__learning_rate": [0.01, 0.05, 0.1, 0.15],
-        "model__max_depth": [3, 4, 5],
-
+    "RandomForestClassifier": {
+        # 3 × 3 × 3 × 3 × 2 = 162 kombinacje
+        "model__n_estimators": [100, 300, 500],
+        "model__max_depth": [None, 10, 20],
+        "model__min_samples_split": [2, 5, 10],
+        "model__min_samples_leaf": [1, 2, 5],
+        "model__max_features": ["sqrt", "log2"]
 
         # Do ostatecznego testu 9 x 6 x 4 = 216 kombinacji
         # "model__n_estimators": range(100, 301, 25),
@@ -46,11 +47,13 @@ PARAM_GRIDS = {
 
     },
 
-    "CatBoost": {
-        # Demo z 5 x 4 x 3 = 60 kombinacji
-        "model__iterations": range(100, 301, 50),
-        "model__learning_rate": [0.01, 0.05, 0.1, 0.15],
-        "model__depth": [3, 4, 5]
+    "CatBoost":
+    {
+        # 2 × 2 × 3 × 3 = 36 kombinacji
+        "model__iterations": [200, 500],
+        "model__learning_rate": [0.03, 0.1],
+        "model__depth": [4, 6, 8],
+        "model__l2_leaf_reg": [3, 5, 7]
 
         # Do ostatecznego testu 9 x 6 x 4 = 216 kombinacji
         # "model__iterations": range(100, 301, 25),

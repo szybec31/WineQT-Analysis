@@ -1,107 +1,143 @@
-from sklearn.model_selection import cross_val_score
-from sklearn.model_selection import ParameterGrid
+import json
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import (
+    GridSearchCV,
+    StratifiedKFold,
+    cross_validate
+)
+
 from src.pipelines import create_pipeline
-from src.config import PARAM_GRIDS
-from src.config import MODELS, SCORING, RESAMPLERS
+from src.config import PARAM_GRIDS, MODELS
 from src.data_loader import load_data
 from src.preprocessing import prepare_data
-from sklearn.ensemble import GradientBoostingClassifier
-from catboost import CatBoostClassifier
-from sklearn.model_selection import StratifiedKFold
 
 
-def grid_search_models(model_name, X, y, cv, param_grid):
+def nested_cv_evaluation(model_name, X, y):
 
-    best_score = 0
-    best_params = None
+    inner_cv = StratifiedKFold(
+        n_splits=5,
+        shuffle=True,
+        random_state=42
+    )
 
-    all_params = list(ParameterGrid(param_grid))
+    outer_cv = StratifiedKFold(
+        n_splits=5,
+        shuffle=True,
+        random_state=42
+    )
 
-    total = len(all_params)
+    pipe = create_pipeline(
+        model=MODELS[model_name],
+        resampler=None,
+        use_scaler=False
+    )
 
-    for i, params in enumerate(all_params):
+    grid = GridSearchCV(
+        estimator=pipe,
+        param_grid=PARAM_GRIDS[model_name],
+        scoring="f1_macro",
+        cv=inner_cv,
+        n_jobs=-1,
+        refit=True,
+        error_score="raise"
+    )
 
-        print(f"\n[{i+1}/{total}] Testing combination:")
+    scores = cross_validate(
+        estimator=grid,
+        X=X,
+        y=y,
+        cv=outer_cv,
+        scoring="f1_macro",
+        n_jobs=-1,
+        return_train_score=False
+    )
 
-        print(params)
+    mean_score = scores["test_score"].mean()
+    std_score = scores["test_score"].std()
 
-        if model_name == "GradientBoostingClassifier":
-
-            model = GradientBoostingClassifier(
-                n_estimators=params["model__n_estimators"],
-                learning_rate=params["model__learning_rate"],
-                max_depth=params["model__max_depth"],
-                random_state=42
-            )
-
-        elif model_name == "CatBoost":
-
-            model = CatBoostClassifier(
-                iterations=params["model__iterations"],
-                learning_rate=params["model__learning_rate"],
-                depth=params["model__depth"],
-                verbose=0,
-                random_state=42
-            )
-
-        else:
-            continue
-
-        pipe = create_pipeline(
-            model,
-            resampler=None,
-            use_scaler=True
-        )
-
-        scores = cross_val_score(
-            pipe,
-            X,
-            y,
-            cv=cv,
-            scoring="f1_macro"
-        )
-
-        mean_score = scores.mean()
-
-        print(f"Score: {mean_score:.4f}")
-
-        if mean_score > best_score:
-            best_score = mean_score
-            best_params = params
-
-    return best_params, best_score
+    return mean_score, std_score
 
 
+def find_best_params_on_full_dataset(model_name, X, y):
+
+    cv = StratifiedKFold(
+        n_splits=5,
+        shuffle=True,
+        random_state=42
+    )
+
+    pipe = create_pipeline(
+        model=MODELS[model_name],
+        resampler=None,
+        use_scaler=False
+    )
+
+    grid = GridSearchCV(
+        estimator=pipe,
+        param_grid=PARAM_GRIDS[model_name],
+        scoring="f1_macro",
+        cv=cv,
+        n_jobs=-1,
+        refit=True,
+        error_score="raise"
+    )
+
+    grid.fit(X, y)
+
+    return (
+        grid.best_params_,
+        grid.best_score_,
+        grid.best_estimator_
+    )
+
+
+# MAIN
 df = load_data("Dataset/WineQT.csv")
 
-# Mod "basic" dla wszystkich 6 klas, "4multiclass" dla 4 klas i "binary" dla dwóch klas
 mode = "binary"
 
-# preprocess
-X, y = prepare_data(df,mode = mode)
-
-# CV
-skf = StratifiedKFold(n_splits=10, shuffle=True, random_state=42)
+X, y = prepare_data(df, mode=mode)
 
 results = []
 
+for model_name in PARAM_GRIDS:
 
-for name, model in MODELS.items():
+    print("\n" + "=" * 60)
+    print(f"MODEL: {model_name}")
+    print("=" * 60)
 
-    if name not in PARAM_GRIDS:
-        continue
+    # 1. Uczciwa ocena jakości modelu
+    mean_score, std_score = nested_cv_evaluation(model_name,X,y)
 
-    print(f"\n===== GRID SEARCH: {name} =====")
+    print(f"Nested CV F1-macro: {mean_score:.4f} ({std_score:.4f})")
 
-    best_params, best_score = grid_search_models(
-        name,
-        X,
-        y,
-        skf,
-        PARAM_GRIDS[name]
-    )
+    # 2. Znalezienie najlepszych parametrów na całym zbiorze
+    best_params, best_cv_score, best_model = find_best_params_on_full_dataset(model_name,X,y)
 
-    print("\n===== FINAL RESULT =====")
-    print("Best params:", best_params)
-    print("Best score:", best_score)
+    print("Best params:")
+    print(best_params)
 
+    results.append({
+        "model": model_name,
+        "nested_cv_mean_f1": round(mean_score, 4),
+        "nested_cv_std_f1": round(std_score, 4),
+        "best_gridsearch_cv_score": round(best_cv_score, 4),
+        "best_params": best_params
+    })
+
+results_df = pd.DataFrame(results)
+
+results_df = results_df.sort_values(
+    by="nested_cv_mean_f1",
+    ascending=False
+)
+
+print("\n")
+print(results_df)
+
+results_df.to_json(
+    "nested_autoML_results.json",
+    orient="records",
+    indent=4
+)

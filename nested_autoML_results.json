@@ -1,0 +1,27 @@
+[
+    {
+        "model":"RandomForestClassifier",
+        "nested_cv_mean_f1":0.7863,
+        "nested_cv_std_f1":0.016,
+        "best_gridsearch_cv_score":0.7931,
+        "best_params":{
+            "model__max_depth":null,
+            "model__max_features":"sqrt",
+            "model__min_samples_leaf":2,
+            "model__min_samples_split":5,
+            "model__n_estimators":300
+        }
+    },
+    {
+        "model":"CatBoost",
+        "nested_cv_mean_f1":0.7784,
+        "nested_cv_std_f1":0.0125,
+        "best_gridsearch_cv_score":0.7924,
+        "best_params":{
+            "model__depth":8,
+            "model__iterations":500,
+            "model__l2_leaf_reg":3,
+            "model__learning_rate":0.1
+        }
+    }
+]
