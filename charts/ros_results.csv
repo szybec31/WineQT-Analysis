@@ -1,6 +1,6 @@
 model,resampling,f1_macro,bal_acc,precision,recall
-RandomForestClassifier,ros,0.383 (0.046),0.370 (0.039),0.449 (0.081),0.370 (0.039)
-CatBoost,ros,0.371 (0.041),0.365 (0.034),0.402 (0.074),0.365 (0.034)
-GradientBoostingClassifier,ros,0.349 (0.033),0.351 (0.040),0.375 (0.050),0.351 (0.040)
-DecisionTreeClassifier,ros,0.325 (0.043),0.327 (0.039),0.334 (0.064),0.327 (0.039)
-LogisticRegression,ros,0.266 (0.025),0.353 (0.100),0.287 (0.021),0.353 (0.100)
+CatBoost,ros,0.790 (0.049),0.791 (0.049),0.791 (0.049),0.791 (0.049)
+RandomForestClassifier,ros,0.787 (0.037),0.788 (0.037),0.789 (0.037),0.788 (0.037)
+GradientBoostingClassifier,ros,0.765 (0.049),0.766 (0.049),0.766 (0.049),0.766 (0.049)
+LogisticRegression,ros,0.752 (0.039),0.756 (0.039),0.756 (0.039),0.756 (0.039)
+DecisionTreeClassifier,ros,0.731 (0.052),0.731 (0.051),0.732 (0.052),0.731 (0.051)

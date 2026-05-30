@@ -1,6 +1,7 @@
 from sklearn.model_selection import cross_validate
 from sklearn.metrics import confusion_matrix, roc_curve, roc_auc_score
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -140,3 +141,40 @@ def plot_roc_curves(models, X, y, cv):
     plt.savefig("charts/roc_curve.png")
     plt.show()
 
+def RF_feature_importance(pipe,X,y):
+    pipe.fit(X, y)
+
+    # pobranie wytrenowanego modelu z pipeline
+    rf_model = pipe.named_steps["model"]
+
+    # feature importance
+    importance = rf_model.feature_importances_
+
+    # tabela
+    feature_importance = pd.DataFrame({
+        "cecha": X.columns,
+        "ważność": importance
+    })
+
+    feature_importance = feature_importance.sort_values(
+        by="ważność",
+        ascending=False
+    )
+
+    print(feature_importance)
+
+    # wykres
+    plt.figure(figsize=(10, 6))
+
+    plt.bar(
+        feature_importance["cecha"],
+        feature_importance["ważność"]
+    )
+
+    plt.xticks(rotation=45)
+    plt.ylabel("Ważność")
+    plt.title("Feature Importance - Random Forest")
+    plt.grid()
+    plt.tight_layout()
+    plt.savefig(f"charts/feature_importance_rf.png")
+    plt.show()

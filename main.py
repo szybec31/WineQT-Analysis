@@ -3,10 +3,12 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 from src.data_loader import load_data
+from src.eda import EDA
 from src.preprocessing import prepare_data
 from src.config import MODELS, SCORING, RESAMPLERS, PARAM_GRIDS
 from src.pipelines import create_pipeline
-from src.evaluation import evaluate_model, mean_confusion_matrix, plot_roc_curves, plot_rf_resampling_confusion_matrices
+from src.evaluation import (evaluate_model, mean_confusion_matrix, plot_roc_curves,
+                            plot_rf_resampling_confusion_matrices, RF_feature_importance)
 from src.results import create_results_tables, plot_results
 from sklearn.model_selection import StratifiedKFold
 
@@ -26,13 +28,17 @@ pd.set_option("display.expand_frame_repr", False)
 df = load_data("Dataset/WineQT.csv")
 
 # Mod "basic" dla wszystkich 6 klas, "4multiclass" dla 4 klas i "binary" dla dwóch klas
-mode = "basic"
+mode = "binary"
 
 # preprocess
 X, y = prepare_data(df, mode = mode)
 
+# Odkomentuj dwie poniższe linie by przeprowadzić eksperyment, który usuwa 5% rekordów z odstającymi wartościami
+#eda = EDA(X, y)
+#X,y = eda.delete_outliers(X,y)
+
 # CV - (dla wszystkich klas użyć 5 splitów, w pozostałych może być 10)
-skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+skf = StratifiedKFold(n_splits=10, shuffle=True, random_state=42)
 
 results = []
 flag = 0
@@ -54,44 +60,9 @@ for res_name, resampler in RESAMPLERS.items():
         scores = evaluate_model(pipe, X, y, skf, SCORING)
 
         if name == "RandomForestClassifier" and flag == 0:
-            # trening pipeline
-            pipe.fit(X, y)
-
-            # pobranie wytrenowanego modelu z pipeline
-            rf_model = pipe.named_steps["model"]
-
-            # feature importance
-            importance = rf_model.feature_importances_
-
-            # tabela
-            feature_importance = pd.DataFrame({
-                "cecha": X.columns,
-                "ważność": importance
-            })
-
-            feature_importance = feature_importance.sort_values(
-                by="ważność",
-                ascending=False
-            )
-
-            print(feature_importance)
-
-            # wykres
-            plt.figure(figsize=(10, 6))
-
-            plt.bar(
-                feature_importance["cecha"],
-                feature_importance["ważność"]
-            )
-
-            plt.xticks(rotation=45)
-            plt.ylabel("Ważność")
-            plt.title("Feature Importance - Random Forest")
-            plt.grid()
-            plt.tight_layout()
-            plt.savefig(f"charts/feature_importance_rf.png")
-            plt.show()
+            RF_feature_importance(pipe,X,y) # ważność cech według modelu RF
             flag = 1
+
         print(scores)
 
         results.append({

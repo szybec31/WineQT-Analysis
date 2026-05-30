@@ -60,3 +60,26 @@ class EDA():
         if self.show:
             plt.show()
         plt.savefig("charts/Correlation_Matrix.png")
+
+    def delete_outliers(self,X,y):
+        from sklearn.ensemble import IsolationForest
+
+        iso = IsolationForest(
+            contamination=0.05,
+            random_state=42
+        )
+
+        labels = iso.fit_predict(X)
+
+        mask = labels == 1
+
+        X = X[mask]
+        y = y[mask]
+
+        print(f"Usunięto {(labels==-1).sum()} rekordów")
+        idx = X["total sulfur dioxide"].nlargest(2).index
+
+        X = X.drop(idx)
+        y = y.drop(idx)
+
+        return X,y
