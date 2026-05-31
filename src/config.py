@@ -11,9 +11,20 @@ from sklearn.metrics import make_scorer, precision_score
 MODELS = {
     "LogisticRegression": LogisticRegression(max_iter=1000, random_state=42),
     "DecisionTreeClassifier": DecisionTreeClassifier(random_state=42),
-    "RandomForestClassifier": RandomForestClassifier(random_state=42),
+    "RandomForestClassifier": RandomForestClassifier(
+        #max_depth=None,
+        #max_features="sqrt",
+        #min_samples_leaf=2,
+        #min_samples_split=5,
+        #n_estimators=300,
+        random_state=42),
     "GradientBoostingClassifier": GradientBoostingClassifier(random_state=42),
-    "CatBoost": CatBoostClassifier(random_state=42,allow_writing_files=False,verbose=False)
+    "CatBoost": CatBoostClassifier(
+        #depth=8,
+        #iterations=500,
+        #l2_leaf_reg=3,
+        #learning_rate=0.1,
+        random_state=42,allow_writing_files=False,verbose=False)
 }
 
 SCORING = {
