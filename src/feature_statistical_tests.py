@@ -25,73 +25,31 @@ def compare_feature_between_classes(
     print(f"\nClass {class_b}")
     print(y.describe())
 
-    # =========================================
-    # SHAPIRO
-    # =========================================
 
     print("\n===== SHAPIRO-WILK =====")
 
     shapiro_x = stats.shapiro(x)
     shapiro_y = stats.shapiro(y)
+    print(f"Class {class_a}: stat={shapiro_x.statistic:.4f}, p={shapiro_x.pvalue:.4e}")
+    print(f"Class {class_b}: stat={shapiro_y.statistic:.4f}, p={shapiro_y.pvalue:.4e}")
 
-    print(
-        f"Class {class_a}: "
-        f"stat={shapiro_x.statistic:.4f}, "
-        f"p={shapiro_x.pvalue:.6f}"
-    )
-
-    print(
-        f"Class {class_b}: "
-        f"stat={shapiro_y.statistic:.4f}, "
-        f"p={shapiro_y.pvalue:.6f}"
-    )
-
-    # =========================================
-    # LEVENE
-    # =========================================
 
     print("\n===== LEVENE =====")
 
     lev = stats.levene(x, y)
+    print(f"stat={lev.statistic:.4f}, p={lev.pvalue:.4e}")
 
-    print(
-        f"stat={lev.statistic:.4f}, "
-        f"p={lev.pvalue:.6f}"
-    )
-
-    # =========================================
-    # T-TEST
-    # =========================================
 
     print("\n===== WELCH T-TEST =====")
 
-    ttest = stats.ttest_ind(
-        x,
-        y,
-        equal_var=False
-    )
+    ttest = stats.ttest_ind(x, y, equal_var=False)
+    print(f"stat={ttest.statistic:.4f}, p={ttest.pvalue:.4e}")
 
-    print(
-        f"stat={ttest.statistic:.4f}, "
-        f"p={ttest.pvalue:.6f}"
-    )
-
-    # =========================================
-    # MANN-WHITNEY
-    # =========================================
 
     print("\n===== MANN-WHITNEY U =====")
 
-    mw = stats.mannwhitneyu(
-        x,
-        y,
-        alternative="two-sided"
-    )
-
-    print(
-        f"stat={mw.statistic:.4f}, "
-        f"p={mw.pvalue:.6f}"
-    )
+    mw = stats.mannwhitneyu(x, y, alternative="two-sided")
+    print(f"stat={mw.statistic:.4f}, p={mw.pvalue:.4e}")
 
     # =========================================
     # CI
