@@ -1,7 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-
 from scipy import stats
 
 
@@ -51,9 +50,7 @@ def compare_feature_between_classes(
     mw = stats.mannwhitneyu(x, y, alternative="two-sided")
     print(f"stat={mw.statistic:.4f}, p={mw.pvalue:.4e}")
 
-    # =========================================
     # CI
-    # =========================================
 
     mean_diff = x.mean() - y.mean()
 
@@ -79,9 +76,7 @@ def compare_feature_between_classes(
         f"[{ci_low:.4f}, {ci_high:.4f}]"
     )
 
-    # =========================================
     # WYKRES
-    # =========================================
 
     plt.figure(figsize=(8, 5))
 

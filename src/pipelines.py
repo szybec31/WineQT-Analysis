@@ -5,7 +5,7 @@ def create_pipeline(model, resampler=None, use_scaler=True):
 
     steps = []
 
-    # Skalowanie (ważne np. dla LogisticRegression i SMOTE)
+    # Skalowanie
     if use_scaler:
         steps.append(("scaler", StandardScaler()))
 

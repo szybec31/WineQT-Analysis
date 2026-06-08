@@ -1,9 +1,7 @@
 import numpy as np
 import pandas as pd
-
 from scipy import stats
 from sklearn.model_selection import cross_val_score
-
 from src.pipelines import create_pipeline
 
 
