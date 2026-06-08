@@ -1,13 +1,6 @@
 # src/regression.py
 
 from sklearn.model_selection import cross_validate
-from sklearn.metrics import (
-    mean_absolute_error,
-    mean_squared_error,
-    r2_score
-)
-import numpy as np
-
 
 def evaluate_regression(model, X, y, cv):
 

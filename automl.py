@@ -1,4 +1,3 @@
-import json
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import (
@@ -107,12 +106,12 @@ for model_name in PARAM_GRIDS:
     print(f"MODEL: {model_name}")
     print("=" * 60)
 
-    # 1. Uczciwa ocena jakości modelu
+    # Uczciwa ocena jakości modelu
     mean_score, std_score = nested_cv_evaluation(model_name,X,y)
 
     print(f"Nested CV F1-macro: {mean_score:.4f} ({std_score:.4f})")
 
-    # 2. Znalezienie najlepszych parametrów na całym zbiorze
+    # Znalezienie najlepszych parametrów na całym zbiorze
     best_params, best_cv_score, best_model = find_best_params_on_full_dataset(model_name,X,y)
 
     print("Best params:")

@@ -1,5 +1,3 @@
-
-
 def prepare_data(df,mode):
     # Usuń niepotrzebne dane
     df = df.drop(['Id'], axis=1)

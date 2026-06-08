@@ -40,7 +40,7 @@ def mean_confusion_matrix(model, X, y, cv):
 
     return mean_cm, labels
 
-
+# Wykresy
 def plot_rf_resampling_confusion_matrices(
         X,
         y,

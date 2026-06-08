@@ -92,56 +92,6 @@ plot_rf_resampling_confusion_matrices(
     resamplers_dict=RESAMPLERS,
     create_pipeline=create_pipeline
 )
-'''
-
-# Macierz pomyłek dla każdego modelu
-
-resampling = "none" # Wykres tylko dla danego trybu resamplingu
-
-models = []
-
-for res_name, resampler in RESAMPLERS.items():
-    if res_name != resampling:
-        continue
-
-    for name, model in MODELS.items():
-        pipe = create_pipeline(model, resampler=resampler, use_scaler=True)
-
-        mean_cm, labels = mean_confusion_matrix(pipe, X, y, skf)
-
-        models.append((name, mean_cm, labels))
-
-n_models = len(models)
-
-# Nie wiem ile będzie modelów w przszłości także to ma znaleźć najbardziej optymalną konfigurację subplotu
-cols = 2
-rows = (n_models + 1) // cols
-
-fig, axes = plt.subplots(rows, cols, figsize=(12, 5 * rows))
-axes = axes.flatten()
-
-for i, (name, cm, labels) in enumerate(models):
-    sns.heatmap(
-        cm,
-        annot=True,
-        fmt=".2f",
-        cmap="Blues",
-        xticklabels=labels,
-        yticklabels=labels,
-        ax=axes[i]
-    )
-    axes[i].set_title(name)
-    axes[i].set_xlabel("Predicted")
-    axes[i].set_ylabel("True")
-
-# Na obecny moment jest 5 modeli dlatego przy subplocie 3 x 2 pozostaje jeden pusty także go usuwam
-for j in range(i + 1, len(axes)):
-    fig.delaxes(axes[j])
-
-plt.suptitle(f"Mean Confusion Matrices ({resampling})", fontsize=16)
-plt.tight_layout()
-plt.show()
-'''
 
 
 # Krzywa ROC dla problemu binarnego
