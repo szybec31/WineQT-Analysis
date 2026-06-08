@@ -66,7 +66,6 @@ Output variable (based on sensory data):
     - `eda.py` - Utility functions for generating descriptive statistics and exploratory charts
     - `evaluation.py` - Model evaluation metrics (e.g., RMSE, MAE, $R^2$) and validation functions
     - `feature_statistcal_tests.py` - Implementation of statistical tests to analyze feature-to-feature relationships
-    - `models.py` - Definitions and architectures of the machine learning models used
     - `pipelines.py` - Definition of data pipelines combining preprocessing steps with model training
     - `preprocessing.py` - Data cleaning, missing value handling, scaling, and feature engineering
     - `regression.py` - Logic handling the training, fitting, and tuning of regression models
